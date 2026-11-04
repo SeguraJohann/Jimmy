@@ -1,0 +1,86 @@
+/* Design tokens — taken from Especificaciones/maqueta.html (dark theme for the gym).
+   Components use ONLY these variables, never literal colors. */
+:root {
+  color-scheme: dark;
+
+  /* Primitives */
+  --bg: #111418;
+  --side: #0c0f12;
+  --surface: #1a1f25;
+  --raise: #232a32;
+  --line: #2e3741;
+  --ink: #f1f3f5;
+  --muted: #a3adb9;
+  --faint: #6e7a88;
+
+  --acc: #f2b33d;
+  --acc-ink: #1a1300;
+  --acc-t: #3a2e14;
+  --ok: #4cc38a;
+  --ok-ink: #0b2016;
+  --ok-t: #163327;
+  --pr: #7ab8ff;
+  --pr-t: #17283d;
+  --bad: #f07a6a;
+  --bad-t: #3d1d19;
+
+  /* Block type palette (ColorKey) */
+  --c-amber: #f2b33d;
+  --c-blue: #7ab8ff;
+  --c-coral: #e77d6a;
+  --c-violet: #b49bf2;
+  --c-green: #6fd39f;
+  --c-teal: #4fc9c9;
+  --c-pink: #f08ac1;
+  --c-slate: #9aa7b8;
+
+  /* Semantic */
+  --color-bg: var(--bg);
+  --color-text: var(--ink);
+  --color-focus: var(--acc);
+  --trend-up: var(--ok);
+  --trend-up-t: var(--ok-t);
+  --trend-flat: var(--acc);
+  --trend-flat-t: var(--acc-t);
+  --trend-down: var(--bad);
+  --trend-down-t: var(--bad-t);
+  --trend-none: var(--faint);
+
+  /* Charts */
+  --chart-grid: var(--line);
+  --chart-text: var(--faint);
+  --chart-line: var(--acc);
+  --chart-avg: var(--ink);
+  --chart-bar: var(--c-blue);
+  --chart-record: var(--pr);
+
+  /* Typography */
+  --font-display: "Barlow Condensed", Barlow, sans-serif;
+  --font-body: Barlow, system-ui, sans-serif;
+
+  /* Spacing / radius */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  /* Layout */
+  --tabbar-h: 64px;
+  --side-w: 220px;
+
+  --z-base: 1;
+  --z-bar: 5;
+  --z-modal: 10;
+  --z-toast: 20;
+}
