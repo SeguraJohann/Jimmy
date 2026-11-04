@@ -5,8 +5,8 @@ export const APP_CONFIG = {
   appName: "Jimmy",
   locale: "es-CR",
 
-  /** Weight step for the −/+ buttons (kg). */
-  weightStep: 2.5,
+  /** Weight step for the −/+ buttons, in the exercise's own unit. */
+  weightStep: { kg: 2.5, lb: 5 },
   /** Epley 1RM is only computed for sets with at most this many reps. */
   maxRepsFor1RM: 12,
 

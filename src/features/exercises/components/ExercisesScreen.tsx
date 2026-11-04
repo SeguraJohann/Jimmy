@@ -74,7 +74,7 @@ export default function ExercisesScreen() {
             <div className="list">
               {list.map((e) => {
                 const a = analytics.get(e.id);
-                const mark = a ? bestMark(a.records, e.logType) : null;
+                const mark = a ? bestMark(a.records, e.logType, e.weightUnit) : null;
                 const st = a?.trend.status;
                 return (
                   <Link key={e.id} to={paths.exercise(e.id)} className="li">

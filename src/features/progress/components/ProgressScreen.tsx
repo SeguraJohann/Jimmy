@@ -229,7 +229,7 @@ export default function ProgressScreen() {
             <Link key={`${r.exerciseId}-${r.sessionId}`} to={paths.exercise(ex.id)} className="row">
               <span className="chip pr">PR</span>
               <b className="grow ellipsis">{ex.name}</b>
-              <span className="num">{formatLogSet(best, ex.logType)}</span>
+              <span className="num">{formatLogSet(best, ex.logType, ex.weightUnit)}</span>
               <span className="hint">{dayMonth(r.date, today)}</span>
             </Link>
           );

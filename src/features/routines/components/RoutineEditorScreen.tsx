@@ -144,6 +144,7 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
     open({
       type: "target",
       exerciseName: exercisesById.get(be.exerciseId)?.name ?? "—",
+      weightUnit: exercisesById.get(be.exerciseId)?.weightUnit,
       value: be,
       onSave: (v) => edit((r) => updateBlock(r, bid, { exercises: r.blocks[bid].exercises.map((e) => (e.id === v.id ? v : e)) })),
       onRemove: () => edit((r) => updateBlock(r, bid, { exercises: r.blocks[bid].exercises.filter((e) => e.id !== be.id) })),
@@ -334,7 +335,7 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
                     <button className={styles.bexMain} onClick={() => editTarget(bid, be)}>
                       <span className="grow ellipsis">{exercisesById.get(be.exerciseId)?.name ?? "—"}</span>
                       <span className={styles.obj}>
-                        {formatTarget({ sets: be.targetSets, repsMin: be.targetRepsMin, repsMax: be.targetRepsMax, weight: be.targetWeight }) ?? <EditIcon size={14} />}
+                        {formatTarget({ sets: be.targetSets, repsMin: be.targetRepsMin, repsMax: be.targetRepsMax, weight: be.targetWeight }, exercisesById.get(be.exerciseId)?.weightUnit) ?? <EditIcon size={14} />}
                       </span>
                     </button>
                     <button className="btn sm icon ghost" aria-label={t.common.moveUp} disabled={i === 0} onClick={() => moveExercise(bid, i, -1)}>

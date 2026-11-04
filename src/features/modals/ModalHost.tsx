@@ -27,7 +27,7 @@ function render(spec: ModalSpec, close: () => void) {
     case "blockForm":
       return <BlockFormSheet initial={spec.initial} defaultName={spec.defaultName} onSave={spec.onSave} onDelete={spec.onDelete} onClose={close} />;
     case "target":
-      return <TargetSheet exerciseName={spec.exerciseName} value={spec.value} onSave={spec.onSave} onRemove={spec.onRemove} onClose={close} />;
+      return <TargetSheet exerciseName={spec.exerciseName} weightUnit={spec.weightUnit} value={spec.value} onSave={spec.onSave} onRemove={spec.onRemove} onClose={close} />;
     case "cycleDay":
       return <CycleDaySheet routine={spec.routine} day={spec.day} number={spec.number} onSave={spec.onSave} onClose={close} />;
     case "confirm":

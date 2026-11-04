@@ -83,6 +83,7 @@ export const exerciseConverter: FirestoreDataConverter<Exercise> = {
       muscleGroup: str(d.muscleGroup) ?? "",
       equipment: d.equipment ?? null,
       logType: d.logType ?? "weight_reps",
+      weightUnit: d.weightUnit === "lb" ? "lb" : "kg",
       notes: str(d.notes),
       archived: !!d.archived,
       createdAt,

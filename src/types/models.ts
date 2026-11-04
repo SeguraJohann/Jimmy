@@ -11,6 +11,8 @@ export type Weekday = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 export type ColorKey = "amber" | "blue" | "coral" | "violet" | "green" | "teal" | "pink" | "slate";
 
 export type LogType = "weight_reps" | "reps" | "time";
+/** Unit the exercise is shown and typed in. Weights are ALWAYS stored in kg. */
+export type WeightUnit = "kg" | "lb";
 export type Equipment = "barbell" | "dumbbell" | "machine" | "cable" | "bodyweight" | "other";
 
 // ---------- catalog ----------
@@ -34,6 +36,8 @@ export interface Exercise {
   muscleGroup: string;
   equipment: Equipment | null;
   logType: LogType;
+  /** Display / input unit (machines in pounds); stored values stay in kg. */
+  weightUnit: WeightUnit;
   notes: string | null;
   archived: boolean;
   createdAt: Millis;

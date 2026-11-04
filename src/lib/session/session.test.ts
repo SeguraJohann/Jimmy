@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Catalog, Exercise, ExerciseLog, Routine, Session, SessionExercise } from "@/types/models";
 import { sessionTitle } from "./format";
+import { fromUnit } from "@/lib/utils/units";
+const fromLb = (lb: number) => fromUnit(lb, "lb");
 import {
   addRoutineDay,
   addSet,
@@ -23,6 +25,7 @@ const ex = (id: string, logType: Exercise["logType"] = "weight_reps"): Exercise 
   muscleGroup: "Espalda",
   equipment: null,
   logType,
+  weightUnit: "kg",
   notes: null,
   archived: false,
   createdAt: 0,
@@ -285,5 +288,17 @@ describe("combined sessions (two routines in one visit)", () => {
     const s = { ...res.session, status: "done" as const, exercises: res.session.exercises.map((r) => ({ ...r, sets: [done(100, 5)] })) };
     expect(logEntryFor(s, "sq")?.routineId).toBe("legs");
     expect(logEntryFor(s, "e1")?.routineId).toBe("r1");
+  });
+});
+
+describe("weights in pounds", () => {
+  it("steps 5 lb and stores kg", async () => {
+    const { toUnit } = await import("@/lib/utils/units");
+    const { formatLogSet, setsLine } = await import("./format");
+    const r = row({ sets: [open(fromLb(50))] });
+    const up = stepWeight(r, 5, "lb");
+    expect(toUnit(up.sets[0].weight!, "lb")).toBeCloseTo(55, 4);
+    expect(formatLogSet({ w: fromLb(110), r: 10, s: null }, "weight_reps", "lb")).toBe("110 lb × 10");
+    expect(setsLine([done(fromLb(100), 10), done(fromLb(110), 8)], "weight_reps", "lb")).toBe("100×10 · 110×8 lb");
   });
 });

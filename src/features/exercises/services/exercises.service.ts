@@ -1,5 +1,5 @@
 import { onSnapshot, serverTimestamp } from "firebase/firestore";
-import type { Equipment, Exercise, LogType, Routine } from "@/types/models";
+import type { Equipment, Exercise, LogType, Routine, WeightUnit } from "@/types/models";
 import { exerciseDoc, exerciseLogDoc, exercisesCol, routineDoc } from "@/lib/firebase/collections";
 import { ChunkedBatch, commitInBackground } from "@/lib/firebase/batch";
 import { reportError } from "@/lib/utils/errors";
@@ -21,6 +21,7 @@ export interface ExerciseInput {
   muscleGroup: string;
   equipment: Equipment | null;
   logType: LogType;
+  weightUnit: WeightUnit;
   notes: string | null;
 }
 
@@ -35,6 +36,13 @@ export function createExercise(uid: string, input: ExerciseInput): string {
 export function updateExercise(uid: string, id: string, input: ExerciseInput): void {
   const batch = new ChunkedBatch();
   batch.update(exerciseDoc(uid, id), { ...input, updatedAt: serverTimestamp() });
+  commitInBackground(batch);
+}
+
+/** Changes only the display unit (quick kg / lb switch while logging). */
+export function setExerciseUnit(uid: string, id: string, weightUnit: WeightUnit): void {
+  const batch = new ChunkedBatch();
+  batch.update(exerciseDoc(uid, id), { weightUnit, updatedAt: serverTimestamp() });
   commitInBackground(batch);
 }
 

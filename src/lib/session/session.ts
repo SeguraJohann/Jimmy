@@ -14,9 +14,11 @@ import type {
   SessionPart,
   SetEntry,
   Target,
+  WeightUnit,
 } from "@/types/models";
 import { shortId } from "@/lib/utils/shortId";
 import { roundTo } from "@/lib/utils/number";
+import { fromUnit, toUnit } from "@/lib/utils/units";
 import { lastEntry } from "@/lib/metrics/points";
 import { dayName } from "@/lib/routine/routine";
 
@@ -78,12 +80,13 @@ export function addSet(row: SessionExercise): SessionExercise {
 }
 
 /** Adjusts the weight of the current (first not done, else last) set. */
-export function stepWeight(row: SessionExercise, delta: number): SessionExercise {
+/** −/+ on the current set; `delta` is in the exercise's unit (2,5 kg or 5 lb), stored in kg. */
+export function stepWeight(row: SessionExercise, delta: number, unit: WeightUnit = "kg"): SessionExercise {
   if (row.sets.length === 0) return row;
   let i = row.sets.findIndex((s) => !s.done);
   if (i < 0) i = row.sets.length - 1;
-  const cur = row.sets[i].weight ?? 0;
-  const next = Math.max(0, roundTo(cur + delta, Math.abs(delta) || 1));
+  const cur = toUnit(row.sets[i].weight ?? 0, unit);
+  const next = fromUnit(Math.max(0, roundTo(cur + delta, Math.abs(delta) || 1)), unit);
   return { ...row, sets: row.sets.map((s, k) => (k === i ? { ...s, weight: next } : s)) };
 }
 

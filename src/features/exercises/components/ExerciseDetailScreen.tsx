@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import type { ColorKey, DateKey, LogType } from "@/types/models";
+import type { ColorKey, DateKey, LogType, WeightUnit } from "@/types/models";
 import { ArchiveIcon, DeleteIcon, EditIcon, NextIcon, PrevIcon, UnarchiveIcon } from "@/components/icons";
 import { ChipSelect, Empty, Segmented, Stat, TrendBadge, TypeDot } from "@/components/ui/misc";
 import { TimeChart } from "@/components/charts/TimeChart";
@@ -16,7 +16,8 @@ import { movingAverage, type EntryFilter, type SessionPoint } from "@/lib/metric
 import { primaryRecordSessions } from "@/lib/metrics/records";
 import { compareLastN } from "@/lib/metrics/trend";
 import { chartSeries, periodRange, type Period } from "@/lib/metrics/aggregate";
-import { formatLogSet, plural } from "@/lib/session/format";
+import { formatLogSet, formatWeight, formatWeightUnit, plural } from "@/lib/session/format";
+import { toUnit } from "@/lib/utils/units";
 import { formatNumber, formatPercent } from "@/lib/utils/number";
 import { agoText, dayMonth, relativeDate } from "@/lib/date/format";
 import { orderedBlockIds } from "@/lib/routine/routine";
@@ -101,6 +102,10 @@ export default function ExerciseDetailScreen() {
 
   const { points, trend, records } = analytics;
   const logType = exercise.logType;
+  // Weights are stored in kg; this exercise may be shown in pounds.
+  const unit = exercise.weightUnit;
+  const unitLabel = unit === "lb" ? t.common.lb : t.common.kg;
+  const w = (kg: number) => (logType === "weight_reps" ? toUnit(kg, unit) : kg);
   const totalSessions = Object.keys(log?.entries ?? {}).length;
 
   // Period window for charts.
@@ -128,7 +133,8 @@ export default function ExerciseDetailScreen() {
   const comparison = compareLastN(points, 4);
   const history = [...points].reverse();
   const pageSize = APP_CONFIG.analytics.historyPageSize;
-  const formatPrimary = (v: number) => formatNumber(v, logType === "weight_reps" ? 1 : 0);
+  const formatPrimary = (v: number) => formatNumber(w(v), logType === "weight_reps" ? 1 : 0);
+  const formatVolume = (v: number) => formatNumber(w(v), 0);
 
   const hasHistory = totalSessions > 0;
   const inActiveSession = !!activeSession?.exercises.some((r) => r.exerciseId === exercise.id);
@@ -168,8 +174,8 @@ export default function ExerciseDetailScreen() {
     const last = points.length ? agoText(points[points.length - 1].date, today) : t.dates.never;
     if (logType === "weight_reps") {
       return [
-        { v: records.best1RM ? formatNumber(records.best1RM.value, 1) : "—", l: t.exercise.best1RM },
-        { v: records.maxWeight ? `${formatNumber(records.maxWeight.value)}×${records.maxWeight.r ?? 0}` : "—", l: t.exercise.bestWeight },
+        { v: records.best1RM ? formatNumber(w(records.best1RM.value), 1) : "—", l: t.exercise.best1RM },
+        { v: records.maxWeight ? `${formatNumber(w(records.maxWeight.value))}×${records.maxWeight.r ?? 0}` : "—", l: t.exercise.bestWeight },
         { v: last, l: t.exercise.lastTime },
       ];
     }
@@ -284,7 +290,7 @@ export default function ExerciseDetailScreen() {
 
           <section className="card stack">
             <span className="lbl">
-              {t.exercise.volume} ({logType === "weight_reps" ? t.exercise.volumeUnitKg : logType === "reps" ? t.exercise.volumeUnitReps : t.exercise.volumeUnitSec})
+              {t.exercise.volume} ({logType === "weight_reps" ? unitLabel : logType === "reps" ? t.exercise.volumeUnitReps : t.exercise.volumeUnitSec})
             </span>
             {volume.series.length < 2 ? (
               <p className="muted">{inRange.length === 0 ? t.exercise.noData : t.exercise.notEnough}</p>
@@ -297,7 +303,7 @@ export default function ExerciseDetailScreen() {
                   from={chartFrom}
                   to={today}
                   today={today}
-                  formatValue={(v) => (v >= 10000 ? `${formatNumber(v / 1000, 0)}k` : formatNumber(v, 0))}
+                  formatValue={(v) => (w(v) >= 10000 ? `${formatNumber(w(v) / 1000, 0)}k` : formatVolume(v))}
                   label={t.exercise.volume}
                   height={180}
                 />
@@ -324,8 +330,8 @@ export default function ExerciseDetailScreen() {
                 <b>{comparison.recent.primary !== null ? formatPrimary(comparison.recent.primary) : "—"}</b>
                 <CompareDelta pct={comparison.primaryPct} />
                 <span>{t.exercise.compareVolume}</span>
-                <b>{formatNumber(comparison.previous.volume, 0)}</b>
-                <b>{formatNumber(comparison.recent.volume, 0)}</b>
+                <b>{formatVolume(comparison.previous.volume)}</b>
+                <b>{formatVolume(comparison.recent.volume)}</b>
                 <CompareDelta pct={comparison.volumePct} />
                 {logType !== "time" && (
                   <>
@@ -342,12 +348,12 @@ export default function ExerciseDetailScreen() {
           <section className="card stack">
             <span className="lbl">{t.exercise.records}</span>
             {records.maxWeight && (
-              <RecordRow label={t.exercise.bestWeight} value={`${formatNumber(records.maxWeight.value)} × ${records.maxWeight.r ?? 0}`} date={records.maxWeight.date} />
+              <RecordRow label={t.exercise.bestWeight} value={`${formatWeightUnit(records.maxWeight.value, unit)} × ${records.maxWeight.r ?? 0}`} date={records.maxWeight.date} />
             )}
-            {records.best1RM && <RecordRow label={t.exercise.best1RM} value={`${formatNumber(records.best1RM.value, 1)} kg`} date={records.best1RM.date} />}
+            {records.best1RM && <RecordRow label={t.exercise.best1RM} value={formatWeightUnit(records.best1RM.value, unit, 1)} date={records.best1RM.date} />}
             {logType !== "weight_reps" && records.bestReps && logType === "reps" && <RecordRow label={t.exercise.bestReps} value={`${records.bestReps.value}`} date={records.bestReps.date} />}
             {logType === "time" && records.bestSeconds && <RecordRow label={t.exercise.bestTime} value={fmt(t.time.seconds, { n: records.bestSeconds.value })} date={records.bestSeconds.date} />}
-            {records.bestVolume && <RecordRow label={t.exercise.bestVolume} value={formatNumber(records.bestVolume.value, 0)} date={records.bestVolume.date} />}
+            {records.bestVolume && <RecordRow label={t.exercise.bestVolume} value={formatVolume(records.bestVolume.value)} date={records.bestVolume.date} />}
             {logType === "weight_reps" && records.repsByWeight.length > 0 && (
               <>
                 <span className="lbl" style={{ marginTop: 6 }}>
@@ -357,7 +363,7 @@ export default function ExerciseDetailScreen() {
                   {records.repsByWeight.slice(0, 6).map((x) => (
                     <div key={x.w} className={styles.repsCell}>
                       <b>
-                        {formatNumber(x.w)} × {x.r}
+                        {formatWeight(x.w, unit)} × {x.r}
                       </b>
                       <span className="hint">{dayMonth(x.date, today)}</span>
                     </div>
@@ -372,7 +378,7 @@ export default function ExerciseDetailScreen() {
               {t.exercise.history} · {plural(history.length, t.units.session1, t.units.sessions)}
             </p>
             {history.slice(0, pageCount * pageSize).map((p) => (
-              <HistoryRow key={p.sessionId} point={p} logType={logType} today={today} record={recordSet.has(p.sessionId)} />
+              <HistoryRow key={p.sessionId} point={p} logType={logType} unit={unit} today={today} record={recordSet.has(p.sessionId)} />
             ))}
             {history.length > pageCount * pageSize && (
               <button className="btn ghost full" onClick={() => setPageCount((c) => c + 1)}>
@@ -433,7 +439,7 @@ function RecordRow({ label, value, date }: { label: string; value: string; date:
   );
 }
 
-function HistoryRow({ point, logType, today, record }: { point: SessionPoint; logType: LogType; today: DateKey; record: boolean }) {
+function HistoryRow({ point, logType, unit, today, record }: { point: SessionPoint; logType: LogType; unit: WeightUnit; today: DateKey; record: boolean }) {
   const e = point.entry;
   return (
     <Link to={paths.session(point.sessionId)} className={styles.histRow}>
@@ -443,7 +449,7 @@ function HistoryRow({ point, logType, today, record }: { point: SessionPoint; lo
           {e.blockName && <span className="muted"> · {e.blockName}</span>}
         </b>
         <span className={styles.histSets} style={{ display: "block" }}>
-          {e.sets.map((s) => formatLogSet(s, logType).replace(" × ", "×")).join(" · ")}
+          {e.sets.map((s) => formatLogSet(s, logType, unit).replace(" × ", "×")).join(" · ")}
         </span>
       </span>
       {record && <span className="chip pr">PR</span>}

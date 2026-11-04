@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
-import type { BlockExercise, CycleDay, DateKey, Routine } from "@/types/models";
+import type { BlockExercise, CycleDay, DateKey, Routine, WeightUnit } from "@/types/models";
 
 /** Every intermediate view (M1–M11 and helpers). */
 export type ModalSpec =
@@ -20,7 +20,7 @@ export type ModalSpec =
   /** M4: create / edit a block. */
   | { type: "blockForm"; initial?: { name: string; typeId: string }; defaultName?: string; onSave: (name: string, typeId: string) => void; onDelete?: () => void }
   /** M5: target of an exercise in a block. */
-  | { type: "target"; exerciseName: string; value: BlockExercise; onSave: (v: BlockExercise) => void; onRemove: () => void }
+  | { type: "target"; exerciseName: string; weightUnit?: WeightUnit; value: BlockExercise; onSave: (v: BlockExercise) => void; onRemove: () => void }
   /** M6: edit a cycle day. */
   | { type: "cycleDay"; routine: Pick<Routine, "blocks">; day: CycleDay; number: number; onSave: (day: CycleDay) => void }
   /** M7 / M8: confirmations with explicit consequences. */

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState, useLayoutEffect } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
-import type { LogType, Session, SessionExercise, SetEntry } from "@/types/models";
+import type { LogType, Session, SessionExercise, SetEntry, WeightUnit } from "@/types/models";
 import { CheckIcon, CloseIcon, NextIcon, PrevIcon } from "@/components/icons";
-import { Loading } from "@/components/ui/misc";
+import { Loading, Segmented } from "@/components/ui/misc";
 import { useT, fmt } from "@/i18n";
 import { useData } from "@/features/data/DataContext";
 import { useSession } from "@/features/data/hooks";
@@ -15,6 +15,8 @@ import { addSet, nextRowId, stepWeight, suggestedValue } from "@/lib/session/ses
 import { rowRecords } from "@/lib/session/records";
 import { bestMark, formatLogSet, formatTarget } from "@/lib/session/format";
 import { formatNumber, parseDecimal, parseInteger, toInputValue } from "@/lib/utils/number";
+import { fromUnitOrNull, toUnitOrNull } from "@/lib/utils/units";
+import { useExerciseActions } from "@/features/exercises/useExerciseActions";
 import { relativeDate } from "@/lib/date/format";
 import { toast } from "@/lib/utils/toast";
 import { useToday } from "@/features/data/ClockContext";
@@ -39,10 +41,14 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
   const t = useT();
   const navigate = useNavigate();
   const today = useToday();
-  const { logsById } = useData();
+  const { logsById, exercisesById } = useData();
   const actions = useSessionActions();
+  const exerciseActions = useExerciseActions();
   const rest = useRestTimer();
-  const step = APP_CONFIG.weightStep;
+  const exercise = exercisesById.get(row.exerciseId);
+  const unit: WeightUnit = exercise?.weightUnit ?? "kg";
+  const step = APP_CONFIG.weightStep[unit];
+  const unitLabel = unit === "lb" ? t.common.lb : t.common.kg;
 
   // Always write on top of the latest snapshot.
   const sessionRef = useRef(session);
@@ -63,8 +69,8 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
   const index = session.exercises.findIndex((r) => r.id === row.id);
   const nextId = nextRowId(session, row.id);
   const next = nextId ? session.exercises.find((r) => r.id === nextId) : null;
-  const target = formatTarget(row.target);
-  const record = bestMark(prevRecords, row.logType);
+  const target = formatTarget(row.target, unit);
+  const record = bestMark(prevRecords, row.logType, unit);
   const single = row.logType !== "weight_reps";
 
   function setValues(i: number, patch: Partial<SetEntry>) {
@@ -83,7 +89,7 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
       return;
     }
     const patch: Partial<SetEntry> = row.logType === "time" ? { seconds: value } : { reps: value };
-    if (row.logType === "weight_reps") patch.weight = typed.weight;
+    if (row.logType === "weight_reps") patch.weight = fromUnitOrNull(typed.weight, unit);
     setValues(i, { ...patch, done: true });
     if (session.status === "in_progress") rest.onSetDone();
   }
@@ -115,7 +121,7 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
         {last && (
           <div className={styles.last}>
             {last.entry.sets.map((s, i) => (
-              <span key={i}>{formatLogSet(s, row.logType)}</span>
+              <span key={i}>{formatLogSet(s, row.logType, unit)}</span>
             ))}
           </div>
         )}
@@ -135,9 +141,15 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
         </section>
       ) : (
         <section className={`card ${styles.setsCard}`}>
+          {!single && exercise && (
+            <div className="row" style={{ justifyContent: "space-between", gap: 12 }}>
+              <span className="lbl">{t.log.unit}</span>
+              <Segmented value={unit} onChange={(u) => exerciseActions.setUnit(exercise.id, u)} label={t.log.unit} options={(["kg", "lb"] as WeightUnit[]).map((v) => ({ value: v, label: v === "lb" ? t.common.lb : t.common.kg }))} />
+            </div>
+          )}
           <div className={`${styles.unit} ${single ? styles.single : ""}`}>
             <span>{t.log.colSet}</span>
-            {!single && <span>{t.log.colWeight}</span>}
+            {!single && <span>{fmt(t.log.colWeight, { unit: unitLabel })}</span>}
             {!single && <span />}
             <span>{row.logType === "time" ? t.log.colSeconds : t.log.colReps}</span>
             <span />
@@ -149,6 +161,7 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
               index={i}
               set={s}
               logType={row.logType}
+              unit={unit}
               suggestion={suggestedValue(row, i, last?.entry ?? null)}
               record={recs[i] ?? null}
               onCommit={(patch) => setValues(i, patch)}
@@ -159,8 +172,8 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
           <div className={styles.step}>
             {row.logType === "weight_reps" && (
               <>
-                <button onClick={() => update((r) => stepWeight(r, -step))}>{fmt(t.log.minus, { step: formatNumber(step) })}</button>
-                <button onClick={() => update((r) => stepWeight(r, step))}>{fmt(t.log.plus, { step: formatNumber(step) })}</button>
+                <button onClick={() => update((r) => stepWeight(r, -step, unit))}>{fmt(t.log.minus, { step: formatNumber(step), unit: unitLabel })}</button>
+                <button onClick={() => update((r) => stepWeight(r, step, unit))}>{fmt(t.log.plus, { step: formatNumber(step), unit: unitLabel })}</button>
               </>
             )}
             <button onClick={() => update(addSet)}>{t.log.addSet}</button>
@@ -200,6 +213,7 @@ interface SetRowProps {
   index: number;
   set: SetEntry;
   logType: LogType;
+  unit: WeightUnit;
   suggestion: number | null;
   record: LiveRecord;
   onCommit: (patch: Partial<SetEntry>) => void;
@@ -208,23 +222,25 @@ interface SetRowProps {
 }
 
 /** One set: local text while typing (keeps "57," intact), saved on blur or ✓. */
-function SetRow({ index, set, logType, suggestion, record, onCommit, onToggle, onDelete }: SetRowProps) {
+function SetRow({ index, set, logType, unit, suggestion, record, onCommit, onToggle, onDelete }: SetRowProps) {
   const t = useT();
   const valueOf = (s: SetEntry) => (logType === "time" ? s.seconds : s.reps);
-  const [w, setW] = useState(toInputValue(set.weight));
+  // Weight is typed and shown in the exercise's unit; stored in kg.
+  const shownWeight = (s: SetEntry) => toInputValue(toUnitOrNull(s.weight, unit));
+  const [w, setW] = useState(shownWeight(set));
   const [v, setV] = useState(toInputValue(valueOf(set)));
   const focused = useRef<"w" | "v" | null>(null);
   const n = index + 1;
 
   useEffect(() => {
-    if (focused.current !== "w") setW(toInputValue(set.weight));
+    if (focused.current !== "w") setW(toInputValue(toUnitOrNull(set.weight, unit)));
     if (focused.current !== "v") setV(toInputValue(logType === "time" ? set.seconds : set.reps));
-  }, [set, logType]);
+  }, [set, logType, unit]);
 
   const commitW = () => {
     focused.current = null;
-    const parsed = parseDecimal(w);
-    if (parsed !== set.weight) onCommit({ weight: parsed });
+    if (w.trim() === shownWeight(set)) return;
+    onCommit({ weight: fromUnitOrNull(parseDecimal(w), unit) });
   };
   const commitV = () => {
     focused.current = null;

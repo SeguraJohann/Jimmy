@@ -6,6 +6,7 @@ export const exerciseSchema = z.object({
   muscleGroup: z.string().trim().max(40),
   equipment: z.enum(["barbell", "dumbbell", "machine", "cable", "bodyweight", "other"]).nullable(),
   logType: z.enum(["weight_reps", "reps", "time"]),
+  weightUnit: z.enum(["kg", "lb"]),
   notes: z.string().trim().max(500).nullable(),
 });
 

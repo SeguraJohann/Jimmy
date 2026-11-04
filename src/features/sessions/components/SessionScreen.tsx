@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, useLayoutEffect } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
-import type { Session, SessionExercise } from "@/types/models";
+import type { Session, SessionExercise, WeightUnit } from "@/types/models";
 import { AddIcon, CheckIcon, DateIcon, DeleteIcon, EditIcon, FinishIcon, MoreIcon, NextIcon, PrevIcon, RoutinesIcon } from "@/components/icons";
 import { Empty, Loading, TypeDot } from "@/components/ui/misc";
 import { useT, fmt } from "@/i18n";
@@ -57,7 +57,7 @@ function SessionView({ session }: { session: Session }) {
   const navigate = useNavigate();
   const today = useToday();
   const [params, setParams] = useSearchParams();
-  const { logsById, routinesById } = useData();
+  const { logsById, routinesById, exercisesById } = useData();
   const { open } = useModals();
   const actions = useSessionActions();
   const [editing, setEditing] = useState(false);
@@ -169,6 +169,7 @@ function SessionView({ session }: { session: Session }) {
                 <RowItem
                   key={r.id}
                   row={r}
+                  unit={exercisesById.get(r.exerciseId)?.weightUnit ?? "kg"}
                   record={records.has(r.id)}
                   editable={editable}
                   inProgress={inProgress}
@@ -263,11 +264,11 @@ function SessionView({ session }: { session: Session }) {
   );
 }
 
-function RowItem({ row, record, editable, inProgress, to, onMenu }: { row: SessionExercise; record: boolean; editable: boolean; inProgress: boolean; to: string; onMenu: () => void }) {
+function RowItem({ row, unit, record, editable, inProgress, to, onMenu }: { row: SessionExercise; unit: WeightUnit; record: boolean; editable: boolean; inProgress: boolean; to: string; onMenu: () => void }) {
   const t = useT();
   const st = rowStatus(row);
-  const done = setsLine(row.sets, row.logType);
-  const target = formatTarget(row.target);
+  const done = setsLine(row.sets, row.logType, unit);
+  const target = formatTarget(row.target, unit);
   const index = st === "done" ? "✓" : "";
   const sub = st === "skipped" ? t.session.skipped : done || (target ? fmt(t.session.target, { target }) : inProgress ? t.session.noTarget : t.session.notDone);
   const body = (

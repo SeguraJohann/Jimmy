@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { BlockExercise, ColorKey, CycleDay, Routine } from "@/types/models";
+import type { BlockExercise, ColorKey, CycleDay, Routine, WeightUnit } from "@/types/models";
 import { Sheet } from "@/components/ui/Sheet";
 import { CloseIcon, DeleteIcon, MoveDownIcon, MoveUpIcon } from "@/components/icons";
 import { TypeDot } from "@/components/ui/misc";
@@ -11,6 +11,7 @@ import { dayName, moveInArray, orderedBlockIds } from "@/lib/routine/routine";
 import { parseDecimal, parseInteger, toInputValue } from "@/lib/utils/number";
 import { colorVar } from "@/styles/semantic";
 import styles from "./Routines.module.css";
+import { fromUnitOrNull, toUnitOrNull } from "@/lib/utils/units";
 
 const NEW_TYPE = "__new__";
 
@@ -145,12 +146,14 @@ export function ColorPicker({ value, onChange }: { value: ColorKey; onChange: (c
 /** M5: target of an exercise inside a block. */
 export function TargetSheet({
   exerciseName,
+  weightUnit = "kg",
   value,
   onSave,
   onRemove,
   onClose,
 }: {
   exerciseName: string;
+  weightUnit?: WeightUnit;
   value: BlockExercise;
   onSave: (v: BlockExercise) => void;
   onRemove: () => void;
@@ -160,7 +163,7 @@ export function TargetSheet({
   const [sets, setSets] = useState(toInputValue(value.targetSets));
   const [min, setMin] = useState(toInputValue(value.targetRepsMin));
   const [max, setMax] = useState(toInputValue(value.targetRepsMax));
-  const [weight, setWeight] = useState(toInputValue(value.targetWeight));
+  const [weight, setWeight] = useState(toInputValue(toUnitOrNull(value.targetWeight, weightUnit)));
   const [note, setNote] = useState(value.note ?? "");
 
   function submit() {
@@ -168,7 +171,7 @@ export function TargetSheet({
     let hi = parseInteger(max);
     if (lo !== null && hi !== null && lo > hi) [lo, hi] = [hi, lo];
     onClose();
-    onSave({ ...value, targetSets: parseInteger(sets), targetRepsMin: lo, targetRepsMax: hi, targetWeight: parseDecimal(weight), note: note.trim() || null });
+    onSave({ ...value, targetSets: parseInteger(sets), targetRepsMin: lo, targetRepsMax: hi, targetWeight: fromUnitOrNull(parseDecimal(weight), weightUnit), note: note.trim() || null });
   }
 
   const num = (id: string, label: string, v: string, set: (s: string) => void, decimal = false) => (
@@ -205,7 +208,7 @@ export function TargetSheet({
     >
       <div className={styles.grid2}>
         {num("tg-sets", t.target.sets, sets, setSets)}
-        {num("tg-w", t.target.weight, weight, setWeight, true)}
+        {num("tg-w", fmt(t.target.weight, { unit: weightUnit === "lb" ? t.common.lb : t.common.kg }), weight, setWeight, true)}
         {num("tg-min", t.target.repsMin, min, setMin)}
         {num("tg-max", t.target.repsMax, max, setMax)}
       </div>

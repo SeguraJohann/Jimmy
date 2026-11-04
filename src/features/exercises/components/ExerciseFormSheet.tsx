@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { Equipment, LogType } from "@/types/models";
+import type { Equipment, LogType, WeightUnit } from "@/types/models";
 import { Sheet } from "@/components/ui/Sheet";
 import { Segmented } from "@/components/ui/misc";
 import { useT } from "@/i18n";
@@ -37,6 +37,7 @@ export function ExerciseFormSheet({
   const [newGroup, setNewGroup] = useState("");
   const [equipment, setEquipment] = useState<Equipment | "">(existing?.equipment ?? "");
   const [logType, setLogType] = useState<LogType>(existing?.logType ?? "weight_reps");
+  const [weightUnit, setWeightUnit] = useState<WeightUnit>(existing?.weightUnit ?? "kg");
   const [notes, setNotes] = useState(existing?.notes ?? "");
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +49,7 @@ export function ExerciseFormSheet({
 
   function submit() {
     const muscleGroup = group === NEW_GROUP ? newGroup.trim() : group;
-    const parsed = exerciseSchema.safeParse({ name, muscleGroup, equipment: equipment || null, logType, notes: notes.trim() || null });
+    const parsed = exerciseSchema.safeParse({ name, muscleGroup, equipment: equipment || null, logType, weightUnit, notes: notes.trim() || null });
     if (!parsed.success) {
       setError(parsed.error.issues[0]?.message ?? t.app.genericError);
       return;
@@ -142,6 +143,13 @@ export function ExerciseFormSheet({
           />
         )}
       </div>
+      {logType === "weight_reps" && (
+        <div className="field">
+          <span className="lbl">{t.exercises.weightUnit}</span>
+          <Segmented value={weightUnit} onChange={setWeightUnit} label={t.exercises.weightUnit} options={(["kg", "lb"] as WeightUnit[]).map((v) => ({ value: v, label: t.units.unitName[v] }))} />
+          <p className="hint">{t.exercises.weightUnitHint}</p>
+        </div>
+      )}
       <div className="field">
         <label htmlFor="ex-notes">
           {t.exercises.notes} ({t.common.optional})

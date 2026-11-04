@@ -18,6 +18,7 @@ const ex = (id: string, name: string, logType: Exercise["logType"] = "weight_rep
   muscleGroup: "Espalda",
   equipment: "cable",
   logType,
+  weightUnit: "kg",
   notes: null,
   archived: false,
   createdAt: 0,
@@ -27,7 +28,7 @@ const ex = (id: string, name: string, logType: Exercise["logType"] = "weight_rep
 
 const EXERCISES: Exercise[] = [
   ex("jalon", "Jalón al pecho"),
-  ex("remo", "Remo con barra", "weight_reps", { equipment: "barbell" }),
+  ex("remo", "Remo con barra", "weight_reps", { equipment: "barbell", weightUnit: "lb" }),
   ex("dom", "Dominadas", "reps", { equipment: "bodyweight" }),
   ex("plancha", "Plancha", "time", { muscleGroup: "Core", equipment: null }),
   ex("old", "Pullover", "weight_reps", { archived: true }),
