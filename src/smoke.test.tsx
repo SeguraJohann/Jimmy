@@ -215,31 +215,31 @@ function renderAt(url: string, pattern: string, el: ReactNode) {
 }
 
 describe("screens render", () => {
-  const cases: [string, string, string, ReactNode][] = [
-    ["home", "/inicio", "/inicio", <HomeScreen />],
-    ["history", "/historial", "/historial", <HistoryScreen />],
-    ["history other month", "/historial?mes=2025-01", "/historial", <HistoryScreen />],
-    ["progress", "/progreso", "/progreso", <ProgressScreen />],
-    ["exercises", "/ejercicios", "/ejercicios", <ExercisesScreen />],
-    ["exercise detail (weight)", "/ejercicios/jalon", "/ejercicios/:id", <ExerciseDetailScreen />],
-    ["exercise detail (reps)", "/ejercicios/dom", "/ejercicios/:id", <ExerciseDetailScreen />],
-    ["exercise detail (time)", "/ejercicios/plancha", "/ejercicios/:id", <ExerciseDetailScreen />],
-    ["exercise detail (no history)", "/ejercicios/nuevo", "/ejercicios/:id", <ExerciseDetailScreen />],
-    ["exercise missing", "/ejercicios/zzz", "/ejercicios/:id", <ExerciseDetailScreen />],
-    ["routines", "/rutinas", "/rutinas", <RoutinesScreen />],
-    ["routine editor", "/rutinas/ppl", "/rutinas/:id", <RoutineEditorScreen />],
-    ["new routine", "/rutinas/nueva", "/rutinas/:id", <RoutineEditorScreen />],
-    ["new session (redirects to active)", "/sesion/nueva", "/sesion/nueva", <NewSessionScreen />],
-    ["session in progress", "/sesion/live", "/sesion/:id", <SessionScreen />],
-    ["past session", "/sesion/s89", "/sesion/:id", <SessionScreen />],
-    ["free session", "/sesion/free", "/sesion/:id", <SessionScreen />],
-    ["log weight", "/sesion/live/ejercicio/r1", "/sesion/:id/ejercicio/:rowId", <ExerciseLogScreen />],
-    ["log time", "/sesion/live/ejercicio/r3", "/sesion/:id/ejercicio/:rowId", <ExerciseLogScreen />],
-    ["log skipped", "/sesion/live/ejercicio/r4", "/sesion/:id/ejercicio/:rowId", <ExerciseLogScreen />],
+  const cases: [string, string, string, () => ReactNode][] = [
+    ["home", "/inicio", "/inicio", () => <HomeScreen />],
+    ["history", "/historial", "/historial", () => <HistoryScreen />],
+    ["history other month", "/historial?mes=2025-01", "/historial", () => <HistoryScreen />],
+    ["progress", "/progreso", "/progreso", () => <ProgressScreen />],
+    ["exercises", "/ejercicios", "/ejercicios", () => <ExercisesScreen />],
+    ["exercise detail (weight)", "/ejercicios/jalon", "/ejercicios/:id", () => <ExerciseDetailScreen />],
+    ["exercise detail (reps)", "/ejercicios/dom", "/ejercicios/:id", () => <ExerciseDetailScreen />],
+    ["exercise detail (time)", "/ejercicios/plancha", "/ejercicios/:id", () => <ExerciseDetailScreen />],
+    ["exercise detail (no history)", "/ejercicios/nuevo", "/ejercicios/:id", () => <ExerciseDetailScreen />],
+    ["exercise missing", "/ejercicios/zzz", "/ejercicios/:id", () => <ExerciseDetailScreen />],
+    ["routines", "/rutinas", "/rutinas", () => <RoutinesScreen />],
+    ["routine editor", "/rutinas/ppl", "/rutinas/:id", () => <RoutineEditorScreen />],
+    ["new routine", "/rutinas/nueva", "/rutinas/:id", () => <RoutineEditorScreen />],
+    ["new session (redirects to active)", "/sesion/nueva", "/sesion/nueva", () => <NewSessionScreen />],
+    ["session in progress", "/sesion/live", "/sesion/:id", () => <SessionScreen />],
+    ["past session", "/sesion/s89", "/sesion/:id", () => <SessionScreen />],
+    ["free session", "/sesion/free", "/sesion/:id", () => <SessionScreen />],
+    ["log weight", "/sesion/live/ejercicio/r1", "/sesion/:id/ejercicio/:rowId", () => <ExerciseLogScreen />],
+    ["log time", "/sesion/live/ejercicio/r3", "/sesion/:id/ejercicio/:rowId", () => <ExerciseLogScreen />],
+    ["log skipped", "/sesion/live/ejercicio/r4", "/sesion/:id/ejercicio/:rowId", () => <ExerciseLogScreen />],
   ];
   for (const [name, url, pattern, el] of cases) {
     it(name, () => {
-      const { container } = renderAt(url, pattern, el);
+      const { container } = renderAt(url, pattern, el());
       expect(container.textContent?.length).toBeGreaterThan(0);
     });
   }

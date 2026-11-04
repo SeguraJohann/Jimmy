@@ -78,9 +78,10 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
       setNameError(true);
       return;
     }
-    const id = actions.save({ ...draft, name: draft.name.trim(), description: draft.description?.trim() || null }, routine?.id);
+    actions.save({ ...draft, name: draft.name.trim(), description: draft.description?.trim() || null }, routine?.id);
     toast(t.editor.saved);
-    navigate(paths.routine(id), { replace: true });
+    // A new routine may not be in the live list yet: go back to the list instead.
+    if (!routine) navigate(paths.routines, { replace: true });
   }
 
   function cancel() {
@@ -147,14 +148,13 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
     });
 
   const addDay = () => {
-    const day = newCycleDay();
-    setDraft((d) => ({ ...d, cycle: [...d.cycle, day] }));
+    // The day is only added when the sheet is saved (cancel leaves no empty day).
     open({
       type: "cycleDay",
       routine: draft,
-      day,
+      day: newCycleDay(),
       number: draft.cycle.length + 1,
-      onSave: (saved) => setDraft((d) => ({ ...d, cycle: d.cycle.map((x) => (x.id === saved.id ? saved : x)) })),
+      onSave: (saved) => setDraft((d) => ({ ...d, cycle: [...d.cycle, saved] })),
     });
   };
 
