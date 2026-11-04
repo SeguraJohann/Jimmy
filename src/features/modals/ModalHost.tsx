@@ -19,7 +19,7 @@ function render(spec: ModalSpec, close: () => void) {
     case "rowOptions":
       return <RowOptionsSheet sessionId={spec.sessionId} rowId={spec.rowId} onClose={close} />;
     case "blockForm":
-      return <BlockFormSheet initial={spec.initial} onSave={spec.onSave} onDelete={spec.onDelete} onClose={close} />;
+      return <BlockFormSheet initial={spec.initial} defaultName={spec.defaultName} onSave={spec.onSave} onDelete={spec.onDelete} onClose={close} />;
     case "target":
       return <TargetSheet exerciseName={spec.exerciseName} value={spec.value} onSave={spec.onSave} onRemove={spec.onRemove} onClose={close} />;
     case "cycleDay":

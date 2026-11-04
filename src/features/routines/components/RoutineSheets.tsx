@@ -17,11 +17,13 @@ const NEW_TYPE = "__new__";
 /** M4: create / edit a block (name + shared type). */
 export function BlockFormSheet({
   initial,
+  defaultName,
   onSave,
   onDelete,
   onClose,
 }: {
   initial?: { name: string; typeId: string };
+  defaultName?: string;
   onSave: (name: string, typeId: string) => void;
   onDelete?: () => void;
   onClose: () => void;
@@ -29,7 +31,7 @@ export function BlockFormSheet({
   const t = useT();
   const { catalog } = useData();
   const catalogActions = useCatalogActions();
-  const [name, setName] = useState(initial?.name ?? "");
+  const [name, setName] = useState(initial?.name ?? defaultName ?? "");
   const [typeId, setTypeId] = useState(initial?.typeId ?? catalog.blockTypes[0]?.id ?? NEW_TYPE);
   const [newType, setNewType] = useState("");
   const [color, setColor] = useState<ColorKey>(APP_CONFIG.colors[catalog.blockTypes.length % APP_CONFIG.colors.length]);

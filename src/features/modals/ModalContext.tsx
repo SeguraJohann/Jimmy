@@ -14,7 +14,7 @@ export type ModalSpec =
   /** M11: options of an exercise in the session. */
   | { type: "rowOptions"; sessionId: string; rowId: string }
   /** M4: create / edit a block. */
-  | { type: "blockForm"; initial?: { name: string; typeId: string }; onSave: (name: string, typeId: string) => void; onDelete?: () => void }
+  | { type: "blockForm"; initial?: { name: string; typeId: string }; defaultName?: string; onSave: (name: string, typeId: string) => void; onDelete?: () => void }
   /** M5: target of an exercise in a block. */
   | { type: "target"; exerciseName: string; value: BlockExercise; onSave: (v: BlockExercise) => void; onRemove: () => void }
   /** M6: edit a cycle day. */

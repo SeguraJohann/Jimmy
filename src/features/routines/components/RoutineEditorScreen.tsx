@@ -78,7 +78,9 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
       setNameError(true);
       return;
     }
-    actions.save({ ...draft, name: draft.name.trim(), description: draft.description?.trim() || null }, routine?.id);
+    const ids = orderedBlockIds(draft);
+    const cycle = draft.cycle.length === 0 && ids.length > 0 ? [newCycleDay(ids)] : draft.cycle;
+    actions.save({ ...draft, cycle, name: draft.name.trim(), description: draft.description?.trim() || null }, routine?.id);
     toast(t.editor.saved);
     // A new routine may not be in the live list yet: go back to the list instead.
     if (!routine) navigate(paths.routines, { replace: true });
@@ -93,10 +95,27 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
   }
 
   // ---------- blocks ----------
+  // Picks exercises one after another (the picker reopens until it is closed).
+  const pickExercisesInto = (bid: string, already: string[]) =>
+    open({
+      type: "exercisePicker",
+      excludeIds: already,
+      note: t.editor.pickerNote,
+      onPick: (exerciseId) => {
+        edit((r) => (r.blocks[bid] ? updateBlock(r, bid, { exercises: [...r.blocks[bid].exercises, newBlockExercise(exerciseId)] }) : r));
+        pickExercisesInto(bid, [...already, exerciseId]);
+      },
+    });
+
   const newBlock = () =>
     open({
       type: "blockForm",
-      onSave: (name, typeId) => edit((r) => addBlock(r, name, typeId).routine),
+      defaultName: blockIds.length === 0 ? draft.name.trim() : undefined,
+      onSave: (name, typeId) => {
+        const res = addBlock(asRoutine(draft), name, typeId);
+        edit((r) => ({ ...r, blocks: { ...r.blocks, [res.blockId]: res.routine.blocks[res.blockId] } }));
+        pickExercisesInto(res.blockId, []);
+      },
     });
 
   const editBlock = (bid: string) => {
@@ -119,12 +138,7 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
     });
   };
 
-  const addExerciseTo = (bid: string) =>
-    open({
-      type: "exercisePicker",
-      excludeIds: draft.blocks[bid].exercises.map((e) => e.exerciseId),
-      onPick: (exerciseId) => edit((r) => updateBlock(r, bid, { exercises: [...r.blocks[bid].exercises, newBlockExercise(exerciseId)] })),
-    });
+  const addExerciseTo = (bid: string) => pickExercisesInto(bid, draft.blocks[bid].exercises.map((e) => e.exerciseId));
 
   const editTarget = (bid: string, be: BlockExercise) =>
     open({
@@ -275,50 +289,6 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
       <div className="cols">
         <section className={styles.section}>
           <div className="top">
-            <span className="h2">{t.editor.cycle}</span>
-            <button className="btn sm" onClick={addDay}>
-              <AddIcon size={16} />
-              {t.editor.addDay}
-            </button>
-          </div>
-          <p className="muted">{t.editor.cycleHint}</p>
-          {draft.cycle.map((day, i) => (
-            <div key={day.id} className={styles.cyc}>
-              <span className={styles.cycN}>{i + 1}</span>
-              <button className={styles.cycBody} onClick={() => editDay(i)}>
-                {day.name && <b>{day.name}</b>}
-                <span className={styles.toks}>
-                  {day.blockIds.filter((b) => draft.blocks[b]).length === 0 && <span className="muted">{t.editor.dayEmpty}</span>}
-                  {day.blockIds
-                    .filter((b) => draft.blocks[b])
-                    .map((b) => (
-                      <span key={b} className={styles.tok}>
-                        <TypeDot color={typeOf(draft.blocks[b].typeId)?.color} />
-                        {draft.blocks[b].name}
-                      </span>
-                    ))}
-                </span>
-              </button>
-              <button className="btn sm icon ghost" aria-label={t.common.moveUp} disabled={i === 0} onClick={() => setDraft((d) => ({ ...d, cycle: moveInArray(d.cycle, i, -1) }))}>
-                <MoveUpIcon size={16} />
-              </button>
-              <button
-                className="btn sm icon ghost"
-                aria-label={t.common.moveDown}
-                disabled={i === draft.cycle.length - 1}
-                onClick={() => setDraft((d) => ({ ...d, cycle: moveInArray(d.cycle, i, 1) }))}
-              >
-                <MoveDownIcon size={16} />
-              </button>
-              <button className="btn sm icon ghost" aria-label={t.common.remove} onClick={() => removeDay(i)}>
-                <CloseIcon size={16} />
-              </button>
-            </div>
-          ))}
-        </section>
-
-        <section className={styles.section}>
-          <div className="top">
             <span className="h2">{t.editor.blocks}</span>
             <button className="btn sm" onClick={newBlock}>
               <AddIcon size={16} />
@@ -332,7 +302,7 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
                 action={
                   <button className="btn acc" onClick={newBlock}>
                     <AddIcon size={16} />
-                    {t.editor.addBlock}
+                    {t.editor.addExercises}
                   </button>
                 }
               >
@@ -384,6 +354,50 @@ function RoutineEditor({ routine }: { routine: Routine | null }) {
               </div>
             );
           })}
+        </section>
+
+        <section className={styles.section}>
+          <div className="top">
+            <span className="h2">{t.editor.cycle}</span>
+            <button className="btn sm" onClick={addDay}>
+              <AddIcon size={16} />
+              {t.editor.addDay}
+            </button>
+          </div>
+          <p className="muted">{draft.cycle.length === 0 ? t.editor.cycleEmptyHint : t.editor.cycleHint}</p>
+          {draft.cycle.map((day, i) => (
+            <div key={day.id} className={styles.cyc}>
+              <span className={styles.cycN}>{i + 1}</span>
+              <button className={styles.cycBody} onClick={() => editDay(i)}>
+                {day.name && <b>{day.name}</b>}
+                <span className={styles.toks}>
+                  {day.blockIds.filter((b) => draft.blocks[b]).length === 0 && <span className="muted">{t.editor.dayEmpty}</span>}
+                  {day.blockIds
+                    .filter((b) => draft.blocks[b])
+                    .map((b) => (
+                      <span key={b} className={styles.tok}>
+                        <TypeDot color={typeOf(draft.blocks[b].typeId)?.color} />
+                        {draft.blocks[b].name}
+                      </span>
+                    ))}
+                </span>
+              </button>
+              <button className="btn sm icon ghost" aria-label={t.common.moveUp} disabled={i === 0} onClick={() => setDraft((d) => ({ ...d, cycle: moveInArray(d.cycle, i, -1) }))}>
+                <MoveUpIcon size={16} />
+              </button>
+              <button
+                className="btn sm icon ghost"
+                aria-label={t.common.moveDown}
+                disabled={i === draft.cycle.length - 1}
+                onClick={() => setDraft((d) => ({ ...d, cycle: moveInArray(d.cycle, i, 1) }))}
+              >
+                <MoveDownIcon size={16} />
+              </button>
+              <button className="btn sm icon ghost" aria-label={t.common.remove} onClick={() => removeDay(i)}>
+                <CloseIcon size={16} />
+              </button>
+            </div>
+          ))}
         </section>
       </div>
 
