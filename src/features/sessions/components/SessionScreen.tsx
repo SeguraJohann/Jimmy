@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useLayoutEffect } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import type { Session, SessionExercise } from "@/types/models";
-import { AddIcon, CheckIcon, DateIcon, DeleteIcon, EditIcon, FinishIcon, MoreIcon, NextIcon, PrevIcon } from "@/components/icons";
+import { AddIcon, CheckIcon, DateIcon, DeleteIcon, EditIcon, FinishIcon, MoreIcon, NextIcon, PrevIcon, RoutinesIcon } from "@/components/icons";
 import { Empty, Loading, TypeDot } from "@/components/ui/misc";
 import { useT, fmt } from "@/i18n";
 import { useData } from "@/features/data/DataContext";
@@ -9,7 +9,7 @@ import { useToday } from "@/features/data/ClockContext";
 import { useSession } from "@/features/data/hooks";
 import { useModals } from "@/features/modals/ModalContext";
 import { useSessionActions } from "../useSessionActions";
-import { rowStatus, sessionDurationMin, sessionSummary } from "@/lib/session/session";
+import { rowStatus, sessionDurationMin, sessionParts, sessionSummary } from "@/lib/session/session";
 import { rowHasRecord } from "@/lib/session/records";
 import { formatTarget, sessionTitle, setsLine } from "@/lib/session/format";
 import { formatNumber } from "@/lib/utils/number";
@@ -129,11 +129,18 @@ function SessionView({ session }: { session: Session }) {
       </div>
       <div>
         <p className="eyebrow">
-          {session.routineName
+          {session.routineName && session.extraParts.length === 0
             ? fmt(t.session.eyebrow, { routine: session.routineName, n: session.cycleDayNumber ?? "–", date: relativeDate(session.date, today) })
             : fmt(t.session.eyebrowFree, { date: relativeDate(session.date, today) })}
         </p>
-        <h1 className="h1">{session.dayName || (session.routineName ? sessionTitle(session) : t.session.free)}</h1>
+        <h1 className="h1">
+          {session.extraParts.length > 0
+            ? sessionParts(session)
+                .map((p) => p.dayName || p.routineName)
+                .join(" + ")
+            : session.dayName || (session.routineName ? sessionTitle(session) : t.session.free)}
+        </h1>
+        {session.extraParts.length > 0 && <p className="muted">{[...new Set(sessionParts(session).map((p) => p.routineName))].join(" + ")}</p>}
       </div>
       <div className="row muted" style={{ flexWrap: "wrap", gap: 8 }}>
         <span>{fmt(t.session.progress, { done: summary.exercisesDone, total: summary.exercisesTotal })}</span>
@@ -175,6 +182,12 @@ function SessionView({ session }: { session: Session }) {
             <button className="dashed" onClick={addExercise}>
               <AddIcon size={18} />
               {t.session.addExercise}
+            </button>
+          )}
+          {editable && (
+            <button className="dashed" onClick={() => open({ type: "addRoutine", sessionId: session.id })}>
+              <RoutinesIcon size={18} />
+              {t.addRoutine.button}
             </button>
           )}
         </div>

@@ -3,6 +3,8 @@ import { ConfirmSheet, PickDateSheet } from "./components/CommonSheets";
 import { ExercisePickerSheet } from "@/features/exercises/components/ExercisePickerSheet";
 import { ExerciseFormSheet } from "@/features/exercises/components/ExerciseFormSheet";
 import { FinishSessionSheet, ResumeSessionSheet, RowOptionsSheet } from "@/features/sessions/components/SessionSheets";
+import { AddRoutineSheet } from "@/features/sessions/components/AddRoutineSheet";
+import { RestTimerSheet } from "@/features/sessions/rest/RestTimerSheet";
 import { BlockFormSheet, CycleDaySheet, TargetSheet } from "@/features/routines/components/RoutineSheets";
 import { SettingsSheet } from "@/features/settings/components/SettingsSheet";
 
@@ -14,6 +16,10 @@ function render(spec: ModalSpec, close: () => void) {
       return <ExerciseFormSheet exerciseId={spec.exerciseId} initialName={spec.initialName} onSaved={spec.onSaved} onClose={close} />;
     case "finishSession":
       return <FinishSessionSheet sessionId={spec.sessionId} onClose={close} />;
+    case "addRoutine":
+      return <AddRoutineSheet sessionId={spec.sessionId} onClose={close} />;
+    case "restTimer":
+      return <RestTimerSheet onClose={close} />;
     case "resumeSession":
       return <ResumeSessionSheet sessionId={spec.sessionId} onClose={close} />;
     case "rowOptions":

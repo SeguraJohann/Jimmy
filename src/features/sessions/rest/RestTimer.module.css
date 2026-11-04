@@ -1,0 +1,71 @@
+.fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: flex;
+  align-items: stretch;
+  border-radius: 999px;
+  background: var(--raise);
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.45);
+  overflow: hidden;
+}
+.main {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 18px;
+  font: 700 24px var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  border-left: 1px solid var(--line);
+  color: var(--muted);
+}
+.running .main {
+  color: var(--acc);
+}
+.bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--acc);
+  transition: width 0.25s linear;
+}
+.finished {
+  background: var(--ok-t);
+  border-color: var(--ok);
+}
+.finished .main {
+  color: var(--ok);
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+.big {
+  font: 700 56px var(--font-display);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--acc);
+}
+.spacer {
+  height: 72px;
+}
+@media (min-width: 860px) {
+  .fab {
+    right: 32px;
+    bottom: 32px;
+  }
+}

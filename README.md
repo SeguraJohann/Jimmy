@@ -37,11 +37,13 @@ Installable on the phone as a standalone app and fully usable offline at the gym
 - **Routines:** reusable blocks with a shared type (Pull, Leg, Push…), targets per exercise, cycle of days combining blocks, reorder with ↑ / ↓, duplicate, archive or delete; simple routines need only one block (exercises are picked one after another and a routine without days gets a single day with every block)
 - **Exercises:** weight × reps, reps only or time; muscle group, equipment and notes; search and filters; archive when it has history
 - **Sessions:** next-day suggestion (never blocking), free sessions, logging date, stopwatch, prefilled weights from last time, ✓ with the suggested reps, ±2.5 kg, add set, live record badges, notes, skip / reorder / remove exercises, finish summary, discard empty sessions, resume an unfinished session
+- **Combined sessions:** add a day of another routine to the session in progress (e.g. back + legs in one visit) and log the exercises in any order; next-day suggestions count for both routines
+- **Rest timer:** floating countdown during the session (4:00 by default, ±30 s, presets), auto-starts when a set is checked, beeps and vibrates at zero, keeps the screen on while running
 - **History:** monthly calendar with trained days colored by block type, month summary, sessions of the month, edit / change date / delete past sessions
 - **Progress:** per-exercise status (progressing / stalled / declining) with sparklines, period summary, weekly volume with moving average, recent records
 - **Exercise detail:** time-proportional strength and volume charts with moving average and record markers, filters by type / block / routine, records, reps by weight, paginated history
 - **Settings:** block types (name, color), muscle groups, rebuild metrics index, sign out
-- Unit tests for metrics, trend, routines and sessions, plus smoke tests that render every screen and modal with sample data (99 tests in total)
+- Unit tests for metrics, trend, routines and sessions, plus smoke tests that render every screen and modal with sample data (106 tests in total)
 - **Getting started guide** ([GETTING_STARTED.md](GETTING_STARTED.md)): Firebase project, `.env`, rules, hosting and phone install, step by step
 
 ### Pending

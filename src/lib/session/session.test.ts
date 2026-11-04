@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Catalog, Exercise, ExerciseLog, Routine, Session, SessionExercise } from "@/types/models";
+import { sessionTitle } from "./format";
 import {
+  addRoutineDay,
   addSet,
   buildDayRows,
   finalizeRows,
@@ -103,6 +105,7 @@ const session = (over: Partial<Session> = {}): Session => ({
   cycleDayId: "d1",
   cycleDayNumber: 1,
   dayName: "Pull 2",
+  extraParts: [],
   startedAt: 0,
   endedAt: 3_600_000,
   notes: null,
@@ -238,5 +241,49 @@ describe("live records in a row (S10, scenario 10)", async () => {
   it("ignores the session's own stored entry", () => {
     const withSelf: ExerciseLog = { ...history, entries: { ...history.entries, today: { ...history.entries.old, sets: [{ w: 100, r: 5, s: null }] } } };
     expect(rowRecords(row({ sets: [done(70, 5)] }), withSelf, "today", "2026-11-03")).toEqual(["weight"]);
+  });
+});
+
+describe("combined sessions (two routines in one visit)", () => {
+  const legs: Routine = {
+    id: "legs",
+    name: "Pierna básica",
+    description: null,
+    status: "active",
+    blocks: { bl: { name: "Pierna", typeId: "leg", position: 1, exercises: [] } },
+    cycle: [{ id: "ld1", name: null, blockIds: ["bl"] }],
+    createdAt: 0,
+    updatedAt: 0,
+  };
+  const base = session({ status: "in_progress", exercises: [row({ id: "a", exerciseId: "e1", blockId: "b1", sets: [done(60, 10)] })] });
+  const legRows = [row({ id: "x", exerciseId: "sq", exerciseName: "Sentadilla", blockId: "bl" }), row({ id: "y", exerciseId: "e1", exerciseName: "E1", blockId: "bl" })];
+
+  it("appends the day as an extra part and skips exercises already there", () => {
+    const res = addRoutineDay(base, legs, 0, legRows);
+    if ("error" in res) throw new Error(res.error);
+    expect(res.added).toBe(1);
+    expect(res.skipped).toEqual(["E1"]);
+    expect(res.session.routineId).toBe("r1");
+    expect(res.session.extraParts).toEqual([{ routineId: "legs", routineName: "Pierna básica", cycleDayId: "ld1", cycleDayNumber: 1, dayName: "Pierna", blockIds: ["bl"] }]);
+    expect(sessionTitle(res.session)).toBe("PPL · Día 1 · Pull 2 + Pierna básica · Día 1 · Pierna");
+  });
+  it("refuses the same day twice", () => {
+    const res = addRoutineDay(base, legs, 0, legRows);
+    if ("error" in res) throw new Error(res.error);
+    expect(addRoutineDay(res.session, legs, 0, legRows)).toEqual({ error: "sameDay" });
+  });
+  it("a free session takes the day as its main routine", () => {
+    const free = session({ routineId: null, routineName: null, cycleDayId: null, cycleDayNumber: null, dayName: null, exercises: [] });
+    const res = addRoutineDay(free, legs, 0, legRows);
+    if ("error" in res) throw new Error(res.error);
+    expect(res.session.routineId).toBe("legs");
+    expect(res.session.extraParts).toEqual([]);
+  });
+  it("log entries keep the routine each exercise came from", () => {
+    const res = addRoutineDay(base, legs, 0, legRows);
+    if ("error" in res) throw new Error(res.error);
+    const s = { ...res.session, status: "done" as const, exercises: res.session.exercises.map((r) => ({ ...r, sets: [done(100, 5)] })) };
+    expect(logEntryFor(s, "sq")?.routineId).toBe("legs");
+    expect(logEntryFor(s, "e1")?.routineId).toBe("r1");
   });
 });

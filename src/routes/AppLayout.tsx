@@ -6,6 +6,7 @@ import { ErrorNote, Loading } from "@/components/ui/misc";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useData } from "@/features/data/DataContext";
 import { useModals } from "@/features/modals/ModalContext";
+import { RestTimerFab, RestTimerSpacer } from "@/features/sessions/rest/RestTimerFab";
 import { paths } from "./paths";
 import styles from "./AppLayout.module.css";
 
@@ -43,6 +44,9 @@ export function AppLayout() {
 
   // Focus mode (G1): no tab bar inside a session on mobile.
   const focus = path.startsWith("/sesion/") && path !== paths.newSession;
+
+  // Rest timer: floating while inside the session in progress.
+  const showRest = focus && !!activeSession && path.startsWith(paths.session(activeSession.id));
 
   // M9: offer to continue an unfinished session once per app load.
   const prompted = useRef(false);
@@ -100,8 +104,10 @@ export function AppLayout() {
           )}
           {error && <ErrorNote>{t.app.loadError}</ErrorNote>}
           {loading ? <Loading /> : <Outlet />}
+          {showRest && <RestTimerSpacer />}
         </div>
       </main>
+      {showRest && <RestTimerFab />}
 
       {!focus && (
         <nav className={styles.tabbar} aria-label={t.nav.main}>

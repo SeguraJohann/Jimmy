@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import type { DateKey } from "@/types/models";
 import { DateIcon, PrevIcon, RepeatIcon, StartIcon } from "@/components/icons";
-import { Empty, TypeDot } from "@/components/ui/misc";
+import { Empty } from "@/components/ui/misc";
 import { useT, fmt } from "@/i18n";
 import { useData } from "@/features/data/DataContext";
 import { useToday } from "@/features/data/ClockContext";
@@ -12,6 +12,7 @@ import { useSessionActions } from "../useSessionActions";
 import { dayName, suggestNextDay } from "@/lib/routine/routine";
 import { agoText, relativeDate } from "@/lib/date/format";
 import { paths } from "@/routes/paths";
+import { CycleDayList } from "./CycleDayList";
 import styles from "./Sessions.module.css";
 
 const FREE = "__free__";
@@ -21,7 +22,7 @@ export default function NewSessionScreen() {
   const t = useT();
   const navigate = useNavigate();
   const today = useToday();
-  const { routines, activeSession, catalog } = useData();
+  const { routines, activeSession } = useData();
   const { open } = useModals();
   const actions = useSessionActions();
   const recent = useRecentSessions(5);
@@ -39,8 +40,6 @@ export default function NewSessionScreen() {
   const [date, setDate] = useState<DateKey>(today);
 
   if (activeSession) return <Navigate to={paths.session(activeSession.id)} replace />;
-
-  const typeColor = (typeId: string) => catalog.blockTypes.find((x) => x.id === typeId)?.color ?? null;
 
   function start() {
     if (routine && routine.cycle[dayIndex]) {
@@ -117,37 +116,7 @@ export default function NewSessionScreen() {
               {t.newSession.emptyDay}
             </Empty>
           ) : (
-            <div className="stack sm" role="radiogroup">
-              {routine.cycle.map((d, i) => {
-                const last = suggestion?.lastDoneByDay.get(d.id) ?? null;
-                const isNext = i === suggestion?.suggestedIndex;
-                return (
-                  <button
-                    key={d.id}
-                    role="radio"
-                    aria-checked={i === dayIndex}
-                    className={`${styles.day} ${isNext ? styles.next : ""} ${i === dayIndex ? styles.picked : ""}`}
-                    onClick={() => setDayPick({ routineId: routine.id, index: i })}
-                  >
-                    <span className={styles.dayN}>{i + 1}</span>
-                    <span className="grow">
-                      <b>{dayName(routine, d) || "—"}</b>
-                      <span className={styles.blks}>
-                        {d.blockIds
-                          .filter((b) => routine.blocks[b])
-                          .map((b) => (
-                            <span key={b} className={styles.blk}>
-                              <TypeDot color={typeColor(routine.blocks[b].typeId)} />
-                              {fmt(t.newSession.blockCount, { name: routine.blocks[b].name, n: routine.blocks[b].exercises.length })}
-                            </span>
-                          ))}
-                      </span>
-                    </span>
-                    {isNext ? <span className="chip acc">{t.newSession.next}</span> : <span className="muted">{last ? agoText(last, today) : t.newSession.neverDone}</span>}
-                  </button>
-                );
-              })}
-            </div>
+            <CycleDayList routine={routine} suggestion={suggestion} selected={dayIndex} onPick={(i) => setDayPick({ routineId: routine.id, index: i })} />
           )}
           <button className="btn acc full" onClick={start} disabled={!routine.cycle[dayIndex]}>
             <StartIcon size={18} />

@@ -114,6 +114,20 @@ export interface SessionExercise {
 
 export type SessionStatus = "in_progress" | "done";
 
+/**
+ * A routine day added to a session that already has one (combined session,
+ * e.g. back + legs on the same visit). Name copies, like the main fields.
+ */
+export interface SessionPart {
+  routineId: string;
+  routineName: string;
+  cycleDayId: string;
+  cycleDayNumber: number;
+  dayName: string;
+  /** Blocks of that day: tells which routine each row came from. */
+  blockIds: string[];
+}
+
 export interface Session {
   id: string;
   date: DateKey;
@@ -123,6 +137,8 @@ export interface Session {
   cycleDayId: string | null;
   cycleDayNumber: number | null;
   dayName: string | null;
+  /** Other routine days done in the same session (empty for a normal session). */
+  extraParts: SessionPart[];
   startedAt: Millis;
   endedAt: Millis | null;
   notes: string | null;

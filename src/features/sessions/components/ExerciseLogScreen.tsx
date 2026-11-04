@@ -21,6 +21,7 @@ import { useToday } from "@/features/data/ClockContext";
 import { paths } from "@/routes/paths";
 import { SessionTimer } from "./SessionTimer";
 import { NotesField } from "./NotesField";
+import { useRestTimer } from "../rest/RestTimerContext";
 import styles from "./Sessions.module.css";
 
 /** V4: log the sets of one exercise. */
@@ -40,6 +41,7 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
   const today = useToday();
   const { logsById } = useData();
   const actions = useSessionActions();
+  const rest = useRestTimer();
   const step = APP_CONFIG.weightStep;
 
   // Always write on top of the latest snapshot.
@@ -83,6 +85,7 @@ function LogView({ session, row }: { session: Session; row: SessionExercise }) {
     const patch: Partial<SetEntry> = row.logType === "time" ? { seconds: value } : { reps: value };
     if (row.logType === "weight_reps") patch.weight = typed.weight;
     setValues(i, { ...patch, done: true });
+    if (session.status === "in_progress") rest.onSetDone();
   }
 
   return (

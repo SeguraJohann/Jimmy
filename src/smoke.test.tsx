@@ -117,6 +117,7 @@ const ACTIVE: Session = {
   cycleDayId: "d1",
   cycleDayNumber: 1,
   dayName: "Pull 2 + Leg 2",
+  extraParts: [],
   startedAt: Date.now() - 38 * 60_000,
   endedAt: null,
   notes: "Hombro cargado",
@@ -177,6 +178,7 @@ vi.mock("@/features/catalog/useCatalogActions", () => ({ useCatalogActions: acti
 const { ClockProvider } = await import("@/features/data/ClockContext");
 const { ModalProvider, useModals } = await import("@/features/modals/ModalContext");
 const { ModalHost } = await import("@/features/modals/ModalHost");
+const { RestTimerProvider } = await import("@/features/sessions/rest/RestTimerContext");
 const { AppLayout } = await import("@/routes/AppLayout");
 const { HomeScreen } = await import("@/features/home/components/HomeScreen");
 const HistoryScreen = (await import("@/features/history/components/HistoryScreen")).default;
@@ -201,6 +203,7 @@ function renderAt(url: string, pattern: string, el: ReactNode) {
   return render(
     <MemoryRouter initialEntries={[url]}>
       <ClockProvider>
+        <RestTimerProvider>
         <ModalProvider>
           <Routes>
             <Route element={<AppLayout />}>
@@ -209,6 +212,7 @@ function renderAt(url: string, pattern: string, el: ReactNode) {
           </Routes>
           <ModalHost />
         </ModalProvider>
+        </RestTimerProvider>
       </ClockProvider>
     </MemoryRouter>,
   );
@@ -251,6 +255,12 @@ describe("screens render", () => {
     expect(container.textContent).toContain("Baja");
   });
 
+  it("session in progress shows the rest timer and the add-routine button", () => {
+    const { container } = renderAt("/sesion/live", "/sesion/:id", <SessionScreen />);
+    expect(container.querySelector("[role=timer] button")?.textContent).toContain("4:00");
+    expect(container.textContent).toContain("Agregar otra rutina");
+  });
+
   it("history shows the month calendar", () => {
     const { container } = renderAt("/historial", "/historial", <HistoryScreen />);
     expect(container.querySelectorAll("[role=grid] button").length).toBeGreaterThanOrEqual(28);
@@ -280,6 +290,8 @@ describe("modals render", () => {
     ["confirm", { type: "confirm", title: "¿Seguro?", lines: ["Línea"], confirmLabel: "Sí", onConfirm: noop }],
     ["pick date", { type: "pickDate", title: "Fecha", initial: today, max: today, onPick: noop }],
     ["settings", { type: "settings" }],
+    ["add routine", { type: "addRoutine", sessionId: "live" }],
+    ["rest timer", { type: "restTimer" }],
   ];
   for (const [name, spec] of specs) {
     it(name, () => {

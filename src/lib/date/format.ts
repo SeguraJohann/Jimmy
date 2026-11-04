@@ -64,6 +64,12 @@ export function formatDuration(min: number): string {
 }
 
 /** Stopwatch "01:02:03". */
+/** Short countdown "4:00" / "0:45" (rest timer). */
+export function formatCountdown(sec: number): string {
+  const total = Math.max(0, Math.ceil(sec));
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
+}
+
 export function formatClock(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
   const p = (n: number) => String(n).padStart(2, "0");

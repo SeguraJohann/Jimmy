@@ -10,6 +10,13 @@ export const APP_CONFIG = {
   /** Epley 1RM is only computed for sets with at most this many reps. */
   maxRepsFor1RM: 12,
 
+  /** Rest timer between sets (seconds). */
+  rest: {
+    defaultSec: 240,
+    stepSec: 30,
+    presetsSec: [60, 90, 120, 180, 240, 300],
+  },
+
   analytics: {
     /** Trend window: last N sessions within this many days. */
     trendMaxSessions: 6,

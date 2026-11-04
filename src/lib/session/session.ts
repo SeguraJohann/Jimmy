@@ -11,6 +11,7 @@ import type {
   Routine,
   Session,
   SessionExercise,
+  SessionPart,
   SetEntry,
   Target,
 } from "@/types/models";
@@ -154,10 +155,41 @@ export function buildDayRows(
 
 export function sessionHeader(routine: Routine | null, dayIndex: number | null) {
   if (!routine || dayIndex === null || !routine.cycle[dayIndex]) {
-    return { routineId: null, routineName: null, cycleDayId: null, cycleDayNumber: null, dayName: null };
+    return { routineId: null, routineName: null, cycleDayId: null, cycleDayNumber: null, dayName: null, extraParts: [] as SessionPart[] };
   }
   const day = routine.cycle[dayIndex];
-  return { routineId: routine.id, routineName: routine.name, cycleDayId: day.id, cycleDayNumber: dayIndex + 1, dayName: dayName(routine, day) };
+  return { routineId: routine.id, routineName: routine.name, cycleDayId: day.id, cycleDayNumber: dayIndex + 1, dayName: dayName(routine, day), extraParts: [] as SessionPart[] };
+}
+
+/** Every routine day of a session (main one first). */
+export function sessionParts(s: Pick<Session, "routineId" | "routineName" | "cycleDayId" | "cycleDayNumber" | "dayName" | "extraParts">): Omit<SessionPart, "blockIds">[] {
+  const main =
+    s.routineId && s.cycleDayId
+      ? [{ routineId: s.routineId, routineName: s.routineName ?? "", cycleDayId: s.cycleDayId, cycleDayNumber: s.cycleDayNumber ?? 0, dayName: s.dayName ?? "" }]
+      : [];
+  return [...main, ...s.extraParts];
+}
+
+export type AddDayResult = { session: Session; added: number; skipped: string[] } | { error: "sameDay" | "emptyDay" };
+
+/**
+ * Adds a routine day to a session (combined session). A free session takes it as
+ * its main routine; otherwise it becomes an extra part. Exercises already in the
+ * session are not duplicated.
+ */
+export function addRoutineDay(session: Session, routine: Routine, dayIndex: number, rows: SessionExercise[]): AddDayResult {
+  const day = routine.cycle[dayIndex];
+  if (!day) return { error: "emptyDay" };
+  if (sessionParts(session).some((p) => p.cycleDayId === day.id)) return { error: "sameDay" };
+  const present = new Set(session.exercises.map((r) => r.exerciseId));
+  const fresh = rows.filter((r) => !present.has(r.exerciseId));
+  const skipped = rows.filter((r) => present.has(r.exerciseId)).map((r) => r.exerciseName);
+  if (fresh.length === 0 && skipped.length === 0) return { error: "emptyDay" };
+  const header = sessionHeader(routine, dayIndex);
+  const next: Session = session.routineId
+    ? { ...session, extraParts: [...session.extraParts, { routineId: routine.id, routineName: routine.name, cycleDayId: day.id, cycleDayNumber: dayIndex + 1, dayName: header.dayName ?? "", blockIds: [...day.blockIds] }] }
+    : { ...session, ...header, extraParts: session.extraParts };
+  return { session: { ...next, exercises: [...session.exercises, ...fresh] }, added: fresh.length, skipped };
 }
 
 // ---------- status & summary ----------
@@ -245,10 +277,11 @@ export function logEntryFor(session: Session, exerciseId: string): LogEntry | nu
   for (const r of rows) for (const s of r.sets) if (isValidDoneSet(s, r.logType)) sets.push(toLogSet(s, r.logType));
   if (sets.length === 0) return null;
   const first = rows.find((r) => r.blockId) ?? rows[0];
+  const part = first.blockId ? session.extraParts.find((p) => p.blockIds.includes(first.blockId!)) : undefined;
   return {
     date: session.date,
-    routineId: session.routineId,
-    routineName: session.routineName,
+    routineId: part ? part.routineId : session.routineId,
+    routineName: part ? part.routineName : session.routineName,
     blockId: first.blockId,
     blockName: first.blockName,
     blockTypeId: first.blockTypeId,

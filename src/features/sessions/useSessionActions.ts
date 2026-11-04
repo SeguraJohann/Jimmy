@@ -3,7 +3,7 @@ import type { DateKey, Routine, Session, SessionExercise } from "@/types/models"
 import { useUid } from "@/features/auth/AuthContext";
 import { useData } from "@/features/data/DataContext";
 import { createSession, deleteSession, saveSession } from "./services/sessions.service";
-import { buildDayRows, finalizeRows, rowFromExercise, sessionHeader } from "@/lib/session/session";
+import { addRoutineDay, buildDayRows, finalizeRows, rowFromExercise, sessionHeader, sessionParts, type AddDayResult } from "@/lib/session/session";
 import { moveInArray, orderedBlockIds } from "@/lib/routine/routine";
 
 /** Session writes for components (Component → hook → service). */
@@ -20,10 +20,10 @@ export function useSessionActions() {
       update(prev, (s) => ({ ...s, exercises: s.exercises.map((r) => (r.id === rowId ? mutate(r) : r)) }));
 
     /** Builds a row for an exercise; uses its block in the session's routine when it has one (keeps metrics by type). */
-    const rowFor = (exerciseId: string, routine: Routine | null): SessionExercise | null => {
+    const rowFor = (exerciseId: string, routinesInSession: Routine[]): SessionExercise | null => {
       const ex = exercisesById.get(exerciseId);
       if (!ex) return null;
-      if (routine) {
+      for (const routine of routinesInSession) {
         for (const bid of orderedBlockIds(routine)) {
           const block = routine.blocks[bid];
           const be = block.exercises.find((e) => e.exerciseId === exerciseId);
@@ -69,10 +69,18 @@ export function useSessionActions() {
       updateRow,
 
       addExercise(prev: Session, exerciseId: string): string | null {
-        const row = rowFor(exerciseId, prev.routineId ? (routinesById.get(prev.routineId) ?? null) : null);
+        const inSession = [...new Set(sessionParts(prev).map((p) => p.routineId))].flatMap((id) => routinesById.get(id) ?? []);
+        const row = rowFor(exerciseId, inSession);
         if (!row) return null;
         update(prev, (s) => ({ ...s, exercises: [...s.exercises, row] }));
         return row.id;
+      },
+
+      /** Combined session: adds another routine day to this session. */
+      addRoutineDay(prev: Session, routine: Routine, dayIndex: number): AddDayResult {
+        const res = addRoutineDay(prev, routine, dayIndex, buildDayRows(routine, dayIndex, catalog, exercisesById, logsById));
+        if (!("error" in res)) save(prev, res.session);
+        return res;
       },
 
       moveRow(prev: Session, rowId: string, delta: number) {

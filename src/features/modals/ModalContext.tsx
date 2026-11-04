@@ -9,6 +9,10 @@ export type ModalSpec =
   | { type: "exerciseForm"; exerciseId?: string; initialName?: string; onSaved?: (id: string) => void }
   /** M3: finish session (M8 discard included when nothing was logged). */
   | { type: "finishSession"; sessionId: string }
+  /** Combined session: add a day of another routine to the session in progress. */
+  | { type: "addRoutine"; sessionId: string }
+  /** Rest timer settings. */
+  | { type: "restTimer" }
   /** M9: a session is still in progress. */
   | { type: "resumeSession"; sessionId: string }
   /** M11: options of an exercise in the session. */

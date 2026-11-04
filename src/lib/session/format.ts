@@ -44,12 +44,15 @@ export function formatTarget(t: Target | { sets: number | null; repsMin: number 
 }
 
 /** "PPL · Día 2 · Push 1" or "Sesión libre". */
-export function sessionTitle(s: Pick<Session, "routineName" | "cycleDayNumber" | "dayName">): string {
+export function sessionTitle(s: Pick<Session, "routineName" | "cycleDayNumber" | "dayName"> & { extraParts?: Session["extraParts"] }): string {
   if (!s.routineName) return es.session.free;
-  const parts = [s.routineName];
-  if (s.cycleDayNumber !== null) parts.push(fmt(es.editor.dayN, { n: s.cycleDayNumber }));
-  if (s.dayName) parts.push(s.dayName);
-  return parts.join(" · ");
+  const one = (routineName: string, n: number | null, day: string | null) => {
+    const parts = [routineName];
+    if (n !== null) parts.push(fmt(es.editor.dayN, { n }));
+    if (day) parts.push(day);
+    return parts.join(" · ");
+  };
+  return [one(s.routineName, s.cycleDayNumber, s.dayName), ...(s.extraParts ?? []).map((p) => one(p.routineName, p.cycleDayNumber, p.dayName))].join(" + ");
 }
 
 /** Pluralized count: "1 serie" / "3 series". */

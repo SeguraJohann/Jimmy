@@ -5,6 +5,7 @@ import { LoginScreen } from "@/features/auth/LoginScreen";
 import { DataProvider } from "@/features/data/DataContext";
 import { ClockProvider } from "@/features/data/ClockContext";
 import { ModalProvider } from "@/features/modals/ModalContext";
+import { RestTimerProvider } from "@/features/sessions/rest/RestTimerContext";
 import { ModalHost } from "@/features/modals/ModalHost";
 import { HomeScreen } from "@/features/home/components/HomeScreen";
 import { Loading } from "@/components/ui/misc";
@@ -46,6 +47,7 @@ export function AppRouter() {
     <BrowserRouter>
       <ClockProvider>
         <DataProvider>
+          <RestTimerProvider>
           <ModalProvider>
             <Routes>
               <Route element={<AppLayout />}>
@@ -66,6 +68,7 @@ export function AppRouter() {
             <ModalHost />
             <ToastHost />
           </ModalProvider>
+          </RestTimerProvider>
         </DataProvider>
       </ClockProvider>
     </BrowserRouter>

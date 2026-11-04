@@ -181,6 +181,13 @@ export function sessionFromDb(id: string, d: DocumentData): Session {
     cycleDayId: str(d.cycleDayId),
     cycleDayNumber: num(d.cycleDayNumber),
     dayName: str(d.dayName),
+    extraParts: arr(d.extraParts).flatMap((x) => {
+      const e = x as DocumentData;
+      const routineId = str(e.routineId);
+      const cycleDayId = str(e.cycleDayId);
+      if (!routineId || !cycleDayId) return [];
+      return [{ routineId, routineName: str(e.routineName) ?? "", cycleDayId, cycleDayNumber: num(e.cycleDayNumber) ?? 0, dayName: str(e.dayName) ?? "", blockIds: arr(e.blockIds).filter((b): b is string => typeof b === "string") }];
+    }),
     startedAt: toMillis(d.startedAt) ?? createdAt,
     endedAt: toMillis(d.endedAt),
     notes: str(d.notes),
@@ -192,7 +199,9 @@ export function sessionFromDb(id: string, d: DocumentData): Session {
 
 /** Session body for Firestore (without id and audit timestamps). */
 export function sessionToDb(s: Omit<Session, "id" | "createdAt" | "updatedAt">): DocumentData {
-  return { ...s, startedAt: ts(s.startedAt), endedAt: tsOrNull(s.endedAt) };
+  // routineIds: every routine in the session, for array-contains queries (no composite index).
+  const routineIds = [...new Set([s.routineId, ...s.extraParts.map((p) => p.routineId)].filter((x): x is string => !!x))];
+  return { ...s, routineIds, startedAt: ts(s.startedAt), endedAt: tsOrNull(s.endedAt) };
 }
 
 export const sessionConverter: FirestoreDataConverter<Session> = {
