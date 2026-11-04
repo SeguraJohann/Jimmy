@@ -1,0 +1,99 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.month {
+  font: 700 24px var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  min-width: 0;
+  flex: 1;
+  text-align: center;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.wd {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--faint);
+  padding-bottom: 2px;
+}
+.cell {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: var(--raise);
+  font: 700 16px var(--font-display);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+.cell:disabled {
+  cursor: default;
+  opacity: 1;
+}
+.out {
+  visibility: hidden;
+}
+.future {
+  background: transparent;
+  border: 1px dashed var(--line);
+}
+.has {
+  color: var(--acc-ink);
+}
+.today {
+  box-shadow: 0 0 0 2px var(--ink) inset;
+}
+.has.today {
+  box-shadow:
+    0 0 0 2px var(--bg) inset,
+    0 0 0 4px var(--ink) inset;
+}
+.sel {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+.multi {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  font: 700 10px var(--font-body);
+  font-style: normal;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bar {
+  width: 6px;
+  align-self: stretch;
+  border-radius: 3px;
+  flex: none;
+}
+@media (min-width: 860px) {
+  .grid {
+    gap: 8px;
+  }
+  .cell {
+    aspect-ratio: auto;
+    height: 64px;
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,124 @@
+.colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+}
+.swatchOn {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 2px var(--bg) inset;
+}
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.dayBlock {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 4px 6px 4px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+/* editor */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cyc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.cycN {
+  font: 700 26px var(--font-display);
+  color: var(--acc);
+  width: 30px;
+  flex: none;
+}
+.cycBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+.toks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tok {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--raise);
+  font-weight: 600;
+  font-size: 14px;
+}
+.bloque {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.bh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 14px;
+  background: var(--raise);
+}
+.bh b {
+  flex: 1;
+  min-width: 0;
+}
+.bex {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 54px;
+  padding: 4px 8px 4px 14px;
+  border-top: 1px solid var(--line);
+}
+.bexMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  min-height: 46px;
+}
+.obj {
+  font: 600 16px var(--font-display);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bexAdd {
+  border-top: 1px solid var(--line);
+  padding: 4px 14px;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}

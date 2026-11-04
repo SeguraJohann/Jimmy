@@ -1,0 +1,81 @@
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search svg {
+  position: absolute;
+  left: 14px;
+  color: var(--faint);
+  pointer-events: none;
+}
+.search input {
+  padding-left: 42px;
+}
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  text-align: left;
+  width: 100%;
+}
+.pickHl {
+  border-color: var(--acc);
+}
+.best {
+  font: 700 17px var(--font-display);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.repsTable {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.repsCell {
+  background: var(--raise);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+.repsCell b {
+  font: 700 18px var(--font-display);
+  font-variant-numeric: tabular-nums;
+}
+.compare {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(0, 1fr));
+  gap: 6px 10px;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.compare > span:nth-child(4n + 1) {
+  color: var(--muted);
+  font-size: 14px;
+}
+.compare b {
+  font: 700 17px var(--font-display);
+}
+.histRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  width: 100%;
+  text-align: left;
+}
+.histRow:first-child {
+  border-top: 0;
+}
+.histSets {
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}

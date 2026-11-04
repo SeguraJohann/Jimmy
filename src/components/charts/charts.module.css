@@ -1,0 +1,81 @@
+.chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.grid {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+.axis {
+  fill: var(--chart-text);
+  font: 600 12px var(--font-body);
+}
+.line {
+  fill: none;
+  stroke: var(--chart-line);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+.avg {
+  fill: none;
+  stroke: var(--chart-avg);
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+  opacity: 0.7;
+}
+.dot {
+  fill: var(--chart-line);
+}
+.dotRecord {
+  fill: var(--chart-record);
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+.bar {
+  fill: var(--chart-bar);
+  opacity: 0.85;
+}
+.barRecord {
+  fill: var(--chart-record);
+}
+.lastLabel {
+  fill: var(--ink);
+  font: 700 14px var(--font-display);
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.swLine {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--chart-line);
+}
+.swAvg {
+  width: 14px;
+  height: 0;
+  border-top: 2px dashed var(--chart-avg);
+}
+.swRecord {
+  width: 10px;
+  height: 10px;
+  border-radius: 99px;
+  background: var(--chart-record);
+}
+.swBar {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--chart-bar);
+}

@@ -1,0 +1,41 @@
+.container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--bg);
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-6);
+  width: min(400px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+  text-align: center;
+}
+.mark {
+  width: 34px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--acc);
+  box-shadow: 0 0 0 4px var(--surface), 0 0 0 6px var(--acc);
+  margin: 8px 0;
+}
+.title {
+  font: 700 44px var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.description {
+  color: var(--muted);
+}
+.error {
+  color: var(--bad);
+  font-size: 13px;
+  font-weight: 600;
+}

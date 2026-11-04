@@ -28,16 +28,25 @@ Installable on the phone as a standalone app and fully usable offline at the gym
 ## Status
 
 ### Done
-- Repository created with `.gitignore` (environment files, internal docs and real Firestore rules are excluded)
+- Repository created with  (environment files, internal docs and real Firestore rules are excluded)
 - Product decisions: app name **Jimmy**, Google sign-in restricted to a single UID (allowlist)
+- Project scaffold: Vite + React + TypeScript (strict), Vitest, oxlint, Firebase config, Firestore rules template with UID allowlist
+- **Installable on Android/iPhone:** web app manifest (standalone, opens at Inicio) and app icons
+- **Data model:** routines and sessions as single documents (embedded blocks, cycle days, exercises and sets, with name copies so past sessions never change) plus a derived per-exercise index () kept in sync in the same batch; no composite indexes
+- **Metrics engine** (tested): Epley 1RM, volume, records (weight, 1RM, volume, reps by weight), live records while logging, per-exercise trend (progressing / stalled / declining / inactive) from the slope of the last sessions, last 4 vs previous 4 comparison, weekly volume, chart downsampling
+- **Routines:** reusable blocks with a shared type (Pull, Leg, Push…), targets per exercise, cycle of days combining blocks, reorder with ↑ / ↓, duplicate, archive or delete
+- **Exercises:** weight × reps, reps only or time; muscle group, equipment and notes; search and filters; archive when it has history
+- **Sessions:** next-day suggestion (never blocking), free sessions, logging date, stopwatch, prefilled weights from last time, ✓ with the suggested reps, ±2.5 kg, add set, live record badges, notes, skip / reorder / remove exercises, finish summary, discard empty sessions, resume an unfinished session
+- **History:** monthly calendar with trained days colored by block type, month summary, sessions of the month, edit / change date / delete past sessions
+- **Progress:** per-exercise status (progressing / stalled / declining) with sparklines, period summary, weekly volume with moving average, recent records
+- **Exercise detail:** time-proportional strength and volume charts with moving average and record markers, filters by type / block / routine, records, reps by weight, paginated history
+- **Settings:** block types (name, color), muscle groups, rebuild metrics index, sign out
+- Unit tests for metrics, trend, routines and sessions, plus smoke tests that render every screen and modal with sample data (99 tests in total)
+- **Getting started guide** ([GETTING_STARTED.md](GETTING_STARTED.md)): Firebase project, , rules, hosting and phone install, step by step
 
 ### Pending
-- Project scaffold, Firebase config, Firestore rules template
-- Data model and services (exercises, routines, sessions, derived exercise logs)
-- Exercises, routines, sessions and set logging
-- Monthly history calendar
-- Progress analytics (per-exercise trend, strength and volume charts)
-- Home, empty states, mobile polish
+- Create the Firebase project, fill in , deploy rules and hosting (owner)
+- Manual testing of the spec scenarios at the gym, then mobile polish
 
 ---
 

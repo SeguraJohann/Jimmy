@@ -1,0 +1,79 @@
+.hero {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 124px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+.tile b {
+  display: block;
+  font: 700 24px/1 var(--font-display);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.ic {
+  color: var(--acc);
+}
+.main {
+  grid-column: 1 / -1;
+  background: var(--acc);
+  color: var(--acc-ink);
+  border-color: var(--acc);
+  min-height: 150px;
+}
+.main b {
+  font-size: 34px;
+}
+.sub {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.sub span[role="timer"] {
+  color: var(--acc-ink);
+}
+.week {
+  display: flex;
+  gap: 6px;
+}
+.wd {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.box {
+  display: block;
+  width: 100%;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--raise);
+}
+.boxToday {
+  box-shadow: 0 0 0 2px var(--ink) inset;
+}
+.boxFuture {
+  background: transparent;
+  border: 1px dashed var(--line);
+}
+@media (min-width: 860px) {
+  .hero {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .settings {
+    display: none;
+  }
+}
