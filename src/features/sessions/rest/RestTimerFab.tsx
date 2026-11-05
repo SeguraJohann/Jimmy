@@ -6,7 +6,7 @@ import { useRestTimer } from "./RestTimerContext";
 import styles from "./RestTimer.module.css";
 
 /**
- * Floating rest timer, always under the thumb during a session.
+ * Rest timer docked to the bottom edge during a session (under the thumb, never over the content).
  * Tap: start (idle) · stop (running) · dismiss (finished). ⋯ opens the settings.
  */
 export function RestTimerFab() {
@@ -34,7 +34,7 @@ export function RestTimerFab() {
   );
 }
 
-/** Keeps the last row of the page clear of the floating timer. */
+/** Keeps the last row of the page clear of the docked timer. */
 export function RestTimerSpacer() {
   return <div className={styles.spacer} aria-hidden />;
 }

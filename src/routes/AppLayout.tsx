@@ -45,7 +45,7 @@ export function AppLayout() {
   // Focus mode (G1): no tab bar inside a session on mobile.
   const focus = path.startsWith("/sesion/") && path !== paths.newSession;
 
-  // Rest timer: floating while inside the session in progress.
+  // Rest timer: docked bar while inside the session in progress.
   const showRest = focus && !!activeSession && path.startsWith(paths.session(activeSession.id));
 
   // M9: offer to continue an unfinished session once per app load.

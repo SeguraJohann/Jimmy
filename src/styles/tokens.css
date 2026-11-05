@@ -78,6 +78,7 @@
   /* Layout */
   --tabbar-h: 64px;
   --side-w: 220px;
+  --rest-bar-h: 60px;
 
   --z-base: 1;
   --z-bar: 5;

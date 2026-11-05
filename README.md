@@ -39,7 +39,7 @@ Installable on the phone as a standalone app and fully usable offline at the gym
 - **Sessions:** next-day suggestion (never blocking), free sessions, logging date, stopwatch, prefilled weights from last time, ✓ with the suggested reps, ±2.5 kg, add set, live record badges, notes, skip / reorder / remove exercises, finish summary, discard empty sessions, resume an unfinished session
 - **Combined sessions:** add a day of another routine to the session in progress (e.g. back + legs in one visit) and log the exercises in any order; next-day suggestions count for both routines
 - **Kilograms or pounds per exercise:** machines in pounds are logged and shown in lb (quick kg / lb switch while logging, 5 lb steps); everything is stored in kg so totals and history stay consistent
-- **Rest timer:** floating countdown during the session (4:00 by default, ±30 s, presets), auto-starts when a set is checked, beeps and vibrates at zero, keeps the screen on while running
+- **Rest timer:** countdown docked to the bottom edge during the session (never covers the set buttons) (4:00 by default, ±30 s, presets), auto-starts when a set is checked, beeps and vibrates at zero, keeps the screen on while running
 - **History:** monthly calendar with trained days colored by block type, month summary, sessions of the month, edit / change date / delete past sessions
 - **Progress:** per-exercise status (progressing / stalled / declining) with sparklines, period summary, weekly volume with moving average, recent records
 - **Exercise detail:** time-proportional strength and volume charts with moving average and record markers, filters by type / block / routine, records, reps by weight, paginated history
